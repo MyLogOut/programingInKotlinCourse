@@ -1,7 +1,7 @@
 package classes
 
 class MovieList(private val genre: String?) {
-    private val movieList = ArrayList<String?>()
+    val movieList = ArrayList<String?>()
     fun addMovie(movie: String?) = movieList.add(movie)
 
     fun printMovies() {
@@ -15,7 +15,7 @@ class MovieList(private val genre: String?) {
     }
 }
 class MovieGoer {
-    private val favoriteMovies: MutableMap<String, MovieList> = mutableMapOf()
+    val favoriteMovies: MutableMap<String, MovieList> = mutableMapOf()
 
     fun addGenre(genre: String) {
         favoriteMovies[genre] = MovieList(genre)
@@ -40,6 +40,13 @@ enum class Genre {
     }
 }
 
+fun automaticallyAddMovies(to: MovieGoer, from: MutableMap<String, MutableList<String>>) {
+    for (genre in Genre.values()) to.addGenre(genre.toString())
+    for (genre in Genre.values()) {
+        from[genre.toString()]?.forEach { to.addMovie(genre.toString(), it) }
+    }
+}
+
 fun main() {
 
     val actionMovies = mutableListOf("Rambo", "Saving private Ryan", "Hacksaw Ridge")
@@ -52,11 +59,7 @@ fun main() {
         Genre.COMEDY.toString() to comedyMovies)
 
     val moviesCollection = MovieGoer()
-    for (genre in Genre.values()) moviesCollection.addGenre(genre.toString())
-    for (genre in Genre.values()) {
-        moviesGallery[genre.toString()]?.forEach { moviesCollection.addMovie(genre.toString(), it) }
-    }
-
+    automaticallyAddMovies(moviesCollection, moviesGallery)
 
     val john = MovieGoer()
     val jane = MovieGoer()
@@ -79,5 +82,7 @@ fun main() {
 //    println("Terror movies: ")
     moviesCollection.addMovie("Terror", "The Ring")
     moviesCollection.movieListFor(Genre.TERROR.toString())?.printMovies() ?: println("List not found")
+
+    println(moviesCollection.favoriteMovies.values.firstOrNull()?.movieSize)
 
 }
